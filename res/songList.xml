@@ -4,12 +4,4 @@
         <name>test_song_dora</name>
         <path>res/test_song_dora.mp3</path>
     </mp3ArrayList>
-    <mp3ArrayList>
-        <name>hard_bass_-_raz_raz_raz_eto_hardbass_(z2.fm).mp3</name>
-        <path>C:\Users\Mark\Downloads\hard_bass_-_raz_raz_raz_eto_hardbass_(z2.fm).mp3</path>
-    </mp3ArrayList>
-    <mp3ArrayList>
-        <name>hard_bass_school_-_tancuj_hardbass__esli_ne_loh_(z2.fm).mp3</name>
-        <path>C:\Users\Mark\Downloads\hard_bass_school_-_tancuj_hardbass__esli_ne_loh_(z2.fm).mp3</path>
-    </mp3ArrayList>
 </mp3>
