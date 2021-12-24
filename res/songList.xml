@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mp3>
     <mp3ArrayList>
-<<<<<<< Updated upstream
-        <name>test_song_dora</name>
-        <path>res/test_song_dora.mp3</path>
-=======
         <name>Раз раз раз это хардбасс</name>
         <path>C:\Users\Mark\Downloads\hard_bass_-_raz_raz_raz_eto_hardbass_(z2.fm).mp3</path>
     </mp3ArrayList>
@@ -15,6 +11,5 @@
     <mp3ArrayList>
         <name>Не Исправлюсь</name>
         <path>res\test_song_dora.mp3</path>
->>>>>>> Stashed changes
     </mp3ArrayList>
 </mp3>
