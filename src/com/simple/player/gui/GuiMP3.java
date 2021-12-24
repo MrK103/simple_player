@@ -1,14 +1,12 @@
 package com.simple.player.gui;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.simple.player.object.MP3;
-import com.simple.player.object.Mp3Player;
-import com.simple.player.utils.FileChooser;
-import com.simple.player.utils.ListSong;
+import com.simple.player.interfaces.PlayControlListener;
+import com.simple.player.interfaces.PlayList;
+import com.simple.player.interfaces.Player;
+import com.simple.player.interfaces.impl.MP3PlayList;
+import com.simple.player.interfaces.impl.MP3Player;
 import com.simple.player.utils.SkinUtil;
-import javazoom.jlgui.basicplayer.BasicController;
-import javazoom.jlgui.basicplayer.BasicPlayerEvent;
-import javazoom.jlgui.basicplayer.BasicPlayerListener;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -19,13 +17,12 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Map;
 
-public class GuiMP3 implements BasicPlayerListener {
-    private JPanel contentPane;
+public class GuiMP3 implements PlayControlListener {
+
+    private final Player player;
+    private final PlayList playList;
+
     private JButton searhButton;
     private JButton downButton;
     private JTextField searhField;
@@ -39,51 +36,54 @@ public class GuiMP3 implements BasicPlayerListener {
     private JButton pauseButton;
     private JButton playButton;
     private JButton stopButton;
-    private JList list1;
-    private JToolBar toolBar1;
+    private JList jList;
     private JPanel panel1;
     private JMenuBar menuBar1;
-    private JButton buttonOK;
-    private DefaultListModel<MP3> mp3List;
     private JMenu jm;
     private JMenuItem jmiMenu;
     private JMenuItem jmiSkin1;
     private JMenuItem jmiSkin2;
     private JMenu jmService;
-    private Mp3Player mp3Player;
     private JFrame jFrame;
     private JPanel panel2;
     private JTextArea titleSong;
     private JPanel statusSong;
     private JSlider songSlider;
-    private FileChooser fc;
-    private SkinUtil sk;
-    private int duration;
-    private int bytesLen;
-    private boolean movingFromJump = false;
-    private boolean moveAutomatic = false;
+    private final SkinUtil sk;
+
+
+    private void searchSong() {
+        String name = searhField.getText().trim();
+        if (!playList.search(name)) {
+            JOptionPane.showMessageDialog(null, "Поиск по строке '" + name + "' не дал результатов");
+            searhField.requestFocus();
+            searhField.selectAll();
+
+        }
+
+    }
 
     public GuiMP3() {
         $$$setupUI$$$();
-        mp3Player = new Mp3Player(this);
-        mp3Player.setSongValue(songSlider);
-        mp3Player.setSongTextArea(titleSong);
-        mp3List = new DefaultListModel();
-        ListSong listSong = new ListSong();
-        listSong.getSongList(mp3List, list1);
-        fc = new FileChooser(buttonAdd, butonRemove, jmiMenu, list1, mp3List);
-        sk = new SkinUtil();
+        player = new MP3Player(this, songSlider, titleSong);
+        playList = new MP3PlayList(jList, player);
+        player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
+        //player.setVolume(sliderVolume.getValue());
 
+        //mp3List = new DefaultListModel();
+        //ListSong listSong = new ListSong();
+        //listSong.getSongList(mp3List, jList);
+
+
+        sk = new SkinUtil();
 
         //Слушатель2
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (e.getSource() == sliderVolume) {
-                    mp3Player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
-                    if (sliderVolume.getValue() == 0) {
-                        muteButton.setSelected(true);
-                    } else muteButton.setSelected(false);
+                    player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
+                    muteButton.setSelected(sliderVolume.getValue() == 0);
                 }
             }
         };
@@ -91,56 +91,43 @@ public class GuiMP3 implements BasicPlayerListener {
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == upButton) {
-                    up();
+                if (e.getSource() == buttonAdd) {
+                    playList.addSong();
+                } else if (e.getSource() == butonRemove) {
+                    playList.removeSong();
+                } else if (e.getSource() == upButton) {
+                    playList.up();
                 } else if (e.getSource() == downButton) {
-                    down();
+                    playList.down();
                 } else if (e.getSource() == playButton) {
-                    play();
+                    playList.playFile();
                 } else if (e.getSource() == pauseButton) {
-                    mp3Player.pause();
+                    player.pause();
                 } else if (e.getSource() == stopButton) {
-                    mp3Player.stop();
+                    player.stop();
                 } else if (e.getSource() == leftSkipButton) {
-                    up();
-                    play();
+                    playList.up();
+                    playList.playFile();
                 } else if (e.getSource() == rightSkipButton) {
-                    down();
-                    play();
+                    playList.down();
+                    playList.playFile();
                 } else if (e.getSource() == muteButton) {
                     if (muteButton.isSelected()) {
-                        mp3Player.setVolume(0, 0);
-                    } else mp3Player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
+                        player.setVolume(0, 0);
+                    } else player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
 
                 } else if (e.getSource() == jmiSkin1) {
                     SkinUtil.changeSkin(jFrame, new FlatLightLaf());
                 } else if (e.getSource() == jmiSkin2) {
                     SkinUtil.changeSkin(jFrame, UIManager.getSystemLookAndFeelClassName());
                 } else if (e.getSource() == searhButton) {
-                    String foundSong = searhField.getText().toLowerCase(Locale.ROOT);
-                    ArrayList<Integer> arr = new ArrayList<Integer>();
-                    if (!foundSong.isEmpty() && mp3List.getSize() != 0) {
-                        for (int i = 0; i < mp3List.getSize(); i++) {
-                            if (mp3List.getElementAt(i).getName().toLowerCase(Locale.ROOT).contains(foundSong)) {
-                                arr.add(i);
-                            }
-                        }
-                    }
-                    if (arr.size() > 0) {
-                        int[] arrInt = new int[arr.size()];
-                        for (int i = 0; i < arrInt.length; i++) {
-                            arrInt[i] = arr.get(i);
-                        }
-                        list1.setSelectedIndices(arrInt);
-                    } else {
-                        searhField.requestFocus();
-                        searhField.selectAll();
-                    }
+                    searchSong();
                 }
             }
         };
 
-
+        buttonAdd.addActionListener(listener);
+        butonRemove.addActionListener(listener);
         searhButton.addActionListener(listener);
         jmiSkin2.addActionListener(listener);
         jmiSkin1.addActionListener(listener);
@@ -153,7 +140,7 @@ public class GuiMP3 implements BasicPlayerListener {
         rightSkipButton.addActionListener(listener);
         sliderVolume.addChangeListener(changeListener);
         muteButton.addActionListener(listener);
-        list1.addListSelectionListener(new ListSelectionListener() {
+        jList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
 
@@ -161,13 +148,15 @@ public class GuiMP3 implements BasicPlayerListener {
         });
 
 
-        songSlider.addChangeListener(new ChangeListener() {
+        /*songSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (songSlider.getValueIsAdjusting() == false) {
                     if (moveAutomatic == true) {
                         moveAutomatic = false;
+                        System.out.println(songSlider.getValue());
                         double posValue = (double) songSlider.getValue() / duration;
+                        System.out.println(posValue);
                         processSeek(posValue);
                     }
                 } else {
@@ -175,45 +164,17 @@ public class GuiMP3 implements BasicPlayerListener {
                     movingFromJump = true;
                 }
             }
-        });
+        });*/
+
 
     }
 
-    public void processSeek(double bytes) {
-        long skipBytes = (long) (bytesLen * bytes);
-        mp3Player.jump(skipBytes);
-    }
-
-    public void up() {
-        int index = list1.getSelectedIndex() - 1;
-        if (index >= 0) {
-            list1.setSelectedIndex(index);
-        }
-    }
-
-    public void down() {
-        int index = list1.getSelectedIndex() + 1;
-        if (index <= list1.getLastVisibleIndex()) {
-            list1.setSelectedIndex(index);
-        }
-    }
-
-    public void play() {
-        int[] index = list1.getSelectedIndices();
-        if (index.length > 0) {
-            MP3 mp3 = mp3List.getElementAt(index[0]);
-            mp3Player.play(mp3.getPath());
-            mp3Player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
-        }
-    }
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
         panel2 = new JPanel();
-        //contentPane = new JPanel();
         jFrame = new JFrame();
         jFrame.setLayout(new FlowLayout());
-        //jFrame.add(panel2);
         jFrame.add($$$getRootComponent$$$());
         jFrame.setSize(400, 500);
         jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -225,8 +186,8 @@ public class GuiMP3 implements BasicPlayerListener {
         jm = new JMenu("menu");
         jmiMenu = new JMenuItem("save");
         jmService = new JMenu("service");
-        jmiSkin1 = new JMenuItem("skin1");
-        jmiSkin2 = new JMenuItem("skin2");
+        jmiSkin1 = new JMenuItem("FlatFlaw");
+        jmiSkin2 = new JMenuItem("Windows");
         JMenu skins = new JMenu("skins");
         skins.add(jmiSkin1);
         skins.add(jmiSkin2);
@@ -315,16 +276,17 @@ public class GuiMP3 implements BasicPlayerListener {
         muteButton.setText("mute");
         panel4.add(muteButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sliderVolume = new JSlider();
-        sliderVolume.setMaximum(200);
-        sliderVolume.setMinorTickSpacing(5);
-        sliderVolume.setValue(45);
+        sliderVolume.setMaximum(100);
+        sliderVolume.setMinimum(0);
+        sliderVolume.setMinorTickSpacing(1);
+        sliderVolume.setValue(50);
         panel4.add(sliderVolume, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        list1 = new JList();
-        list1.setDropMode(DropMode.USE_SELECTION);
-        list1.setForeground(new Color(-4473925));
+        jList = new JList();
+        jList.setDropMode(DropMode.USE_SELECTION);
+        jList.setForeground(new Color(-4473925));
         final DefaultListModel defaultListModel1 = new DefaultListModel();
-        list1.setModel(defaultListModel1);
-        panel1.add(list1, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        jList.setModel(defaultListModel1);
+        panel1.add(jList, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         panel1.add(menuBar1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         statusSong = new JPanel();
         statusSong.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 5, 5, 5), -1, -1));
@@ -347,51 +309,17 @@ public class GuiMP3 implements BasicPlayerListener {
         return panel2;
     }
 
+
     @Override
-    public void opened(Object o, Map map) {
-        duration = Math.round((((Long) map.get("duration")).longValue()) / 1000000);
-        songSlider.setMaximum((int) duration);
-        bytesLen = Math.round((((Integer) map.get("mp3.length.bytes")).intValue()));
-        String songName = map.get("title") != null ? map.get("title").toString() : (new File(o.toString()).toString());
-        if (songName.length() > 23) {
-            songName = songName.substring(0, 23) + "...";
-        }
-        titleSong.setText(songName);
+    public void playStarted(String name) {
+        titleSong.setText(name);
     }
 
-    @Override
-    public void progress(int bytesRead, long microsec, byte[] bytes, Map map) {
-
-        float progress = -1.0f;
-        if ((bytesRead > 0) && ((duration > 0))) {
-            progress = bytesRead * 1.0f / bytesLen * 1.0f;
-        }
-        int secAmount = (int) (duration * progress);
-        if (duration != 0) {
-            if (movingFromJump == false) {
-                songSlider.setValue(secAmount);
-                //System.out.println(Math.round(secAmount * 1000 / duration));
-            }
-        }
-    }
 
     @Override
-    public void stateUpdated(BasicPlayerEvent basicPlayerEvent) {
-        int state = basicPlayerEvent.getCode();
-        if (state == BasicPlayerEvent.PLAYING) {
-            movingFromJump = false;
-        } else if (state == BasicPlayerEvent.SEEKED) {
-            movingFromJump = true;
-        } else if (state == BasicPlayerEvent.EOM) {
-            down();
-            play();
-        }
-
-    }
-
-    @Override
-    public void setController(BasicController basicController) {
-
+    public void playFinished() {
+        playList.down();
+        playList.playFile();
     }
 }
 

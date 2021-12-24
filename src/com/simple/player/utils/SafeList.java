@@ -10,7 +10,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.util.ArrayList;
 
-public class ListSong {
+public class SafeList {
 
     private JAXBContext context;
     private BufferedReader bfr;
@@ -50,7 +50,6 @@ public class ListSong {
     }
     public void getSongList(DefaultListModel<MP3> mp3List , JList songList){
         try {
-            // создаем объект JAXBContext
             JAXBContext jaxbContext = JAXBContext.newInstance(MP3.class);
             Unmarshaller un = jaxbContext.createUnmarshaller();
             File f1 = new File("res");
