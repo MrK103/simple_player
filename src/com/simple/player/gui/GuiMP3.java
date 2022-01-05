@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 
 public class GuiMP3 implements PlayControlListener {
 
+
     private final Player player;
     private final PlayList playList;
 
@@ -43,6 +44,7 @@ public class GuiMP3 implements PlayControlListener {
     private JMenuItem jmiMenu;
     private JMenuItem jmiSkin1;
     private JMenuItem jmiSkin2;
+    private JMenuItem jmiSkin3;
     private JMenu jmService;
     private JFrame jFrame;
     private JPanel panel2;
@@ -120,7 +122,10 @@ public class GuiMP3 implements PlayControlListener {
                     SkinUtil.changeSkin(jFrame, new FlatLightLaf());
                 } else if (e.getSource() == jmiSkin2) {
                     SkinUtil.changeSkin(jFrame, UIManager.getSystemLookAndFeelClassName());
-                } else if (e.getSource() == searhButton) {
+                } else if (e.getSource() == jmiSkin3) {
+                    SkinUtil.changeSkin(jFrame, "com.jtattoo.plaf.acryl.AcrylLookAndFeel");
+                }
+                else if (e.getSource() == searhButton) {
                     searchSong();
                 }
             }
@@ -129,6 +134,7 @@ public class GuiMP3 implements PlayControlListener {
         buttonAdd.addActionListener(listener);
         butonRemove.addActionListener(listener);
         searhButton.addActionListener(listener);
+        jmiSkin3.addActionListener(listener);
         jmiSkin2.addActionListener(listener);
         jmiSkin1.addActionListener(listener);
         downButton.addActionListener(listener);
@@ -171,6 +177,11 @@ public class GuiMP3 implements PlayControlListener {
 
 
     private void createUIComponents() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         // TODO: place custom component creation code here
         panel2 = new JPanel();
         jFrame = new JFrame();
@@ -178,6 +189,7 @@ public class GuiMP3 implements PlayControlListener {
         jFrame.add($$$getRootComponent$$$());
         jFrame.setSize(400, 500);
         jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        jFrame.setLocationRelativeTo(null);
         jFrame.setResizable(false);
         jFrame.setVisible(true);
         jFrame.setTitle("Simple player");
@@ -188,9 +200,11 @@ public class GuiMP3 implements PlayControlListener {
         jmService = new JMenu("service");
         jmiSkin1 = new JMenuItem("FlatFlaw");
         jmiSkin2 = new JMenuItem("Windows");
+        jmiSkin3 = new JMenuItem("JTatoo");
         JMenu skins = new JMenu("skins");
-        skins.add(jmiSkin1);
         skins.add(jmiSkin2);
+        skins.add(jmiSkin1);
+        skins.add(jmiSkin3);
         jmService.add(skins);
         jm.add(jmiMenu);
         menuBar1.add(jm);

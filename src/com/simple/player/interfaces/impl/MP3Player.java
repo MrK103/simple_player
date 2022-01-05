@@ -18,30 +18,27 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-// реализация плеера  для проигрывания mp3 файлов
 public class MP3Player implements Player {
-
-    public static final String MP3_FILE_EXTENSION = "mp3";
-    public static final String MP3_FILE_DESCRIPTION = "Файлы mp3";
 
     private JSlider songSlider;
     private JTextArea titleSong;
 
-    private boolean movingFromJump;
-    private boolean moveAutomatic = true;
+    //private boolean movingFromJump;
+    private boolean moveAutomatic = true; //автоматическое перемещение ползунка песни
     private long duration; // длительность песни в секундах
     private int bytesLen; // размер песни в байтах
-    private BasicPlayer basicPlayer = new BasicPlayer();// используем библиотеку для реализации проигрывания mp3
+    private BasicPlayer basicPlayer = new BasicPlayer(); // библиотека для проигрывания мп3
     private String currentFilePath;// текущая песня
     private double currentVolume;
-    private long secondsAmount; // сколько секунд прошло с начала проигрывания
+    //private long secondsAmount; // сколько секунд прошло с начала проигрывания
     private final PlayControlListener playControlListener;
 
     public MP3Player(PlayControlListener playControlListener, JSlider songSlider, JTextArea titleSong) {
         this.playControlListener = playControlListener;
         this.songSlider = songSlider;
         this.titleSong = titleSong;
-      
+
+        //слушатель bpl
         basicPlayer.addBasicPlayerListener(new BasicPlayerListenerAdapter() {
            
             @Override
@@ -93,8 +90,7 @@ public class MP3Player implements Player {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (songSlider.getValueIsAdjusting() == false) {
-                    System.out.println("Start " + songSlider.getValue());
+                if (!moveAutomatic) {
                     jump(songSlider.getValue());
                 }
                 moveAutomatic = true;
@@ -188,11 +184,8 @@ public class MP3Player implements Player {
     @Override
     public void jump(double controlPosition) {
         try {
-
-            System.out.println("заход " + bytesLen);
             controlPosition = controlPosition/duration;
             controlPosition = bytesLen * controlPosition;
-            System.out.println(controlPosition);
             basicPlayer.seek((long) controlPosition);
             basicPlayer.setGain(currentVolume);
         } catch (BasicPlayerException ex) {

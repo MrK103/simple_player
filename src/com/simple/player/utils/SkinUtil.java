@@ -7,7 +7,9 @@ import java.util.logging.Logger;
 
 public class SkinUtil {
 
+    public SkinUtil(){
 
+    }
 
     public static void changeSkin(Component component, LookAndFeel laf){
         try {
@@ -27,6 +29,7 @@ public class SkinUtil {
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
             Logger.getLogger(SkinUtil.class.getName()).log(Level.SEVERE, null, e);
         }
+        com.jtattoo.plaf.acryl.AcrylLookAndFeel.setTheme("Black", "@mrk", "MrK107");
         SwingUtilities.updateComponentTreeUI(component);
     }
 }
