@@ -29,7 +29,7 @@ public class SkinUtil {
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
             Logger.getLogger(SkinUtil.class.getName()).log(Level.SEVERE, null, e);
         }
-        com.jtattoo.plaf.acryl.AcrylLookAndFeel.setTheme("Black", "@mrk", "MrK107");
+        com.jtattoo.plaf.acryl.AcrylLookAndFeel.setTheme("Black", "@mrk", "MrK103");
         SwingUtilities.updateComponentTreeUI(component);
     }
 }

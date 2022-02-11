@@ -222,7 +222,7 @@
               <component id="1218e" class="javax.swing.JTextArea" binding="songDuration">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                    <preferred-size width="14" height="10"/>
+                    <preferred-size width="12" height="10"/>
                   </grid>
                 </constraints>
                 <properties>

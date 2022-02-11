@@ -67,8 +67,8 @@ public class MP3Player implements Player {
                 songSlider.setMaximum((int) duration);
                 bytesLen = Math.round((((Integer) map.get("mp3.length.bytes")).intValue()));
                 String songName = map.get("title") != null ? map.get("title").toString() : (new File(o.toString()).toString());
-                if (songName.length() > 12) {
-                    songName = songName.substring(0, 12) + "...";
+                if (songName.length() > 11) {
+                    songName = songName.substring(0, 11) + "..";
                 }
                 titleSong.setText(songName);
                 //songDuration.setText(String.valueOf(duration));

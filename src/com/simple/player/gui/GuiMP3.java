@@ -121,6 +121,9 @@ public class GuiMP3 implements PlayControlListener {
 
                 } else if (e.getSource() == jmiSkin1) {
                     SkinUtil.changeSkin(jFrame, new FlatLightLaf());
+                    Font font = new Font("Segoe Script", Font.ROMAN_BASELINE, 10);
+                    titleSong.setFont(font);
+                    songDuration.setFont(font);
                 } else if (e.getSource() == jmiSkin2) {
                     SkinUtil.changeSkin(jFrame, UIManager.getSystemLookAndFeelClassName());
                 } else if (e.getSource() == jmiSkin3) {
@@ -306,7 +309,6 @@ public class GuiMP3 implements PlayControlListener {
         titleSong.setText("Имя песни");
         statusSong.add(titleSong, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(90, -1), new Dimension(90, -1), 0, false));
         songSlider = new JSlider();
-        songSlider.setForeground(new Color(-3398028));
         songSlider.setInverted(false);
         songSlider.putClientProperty("Slider.paintThumbArrowShape", Boolean.FALSE);
         statusSong.add(songSlider, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -317,7 +319,7 @@ public class GuiMP3 implements PlayControlListener {
         songDuration.setForeground(new Color(-3398028));
         songDuration.setLineWrap(false);
         songDuration.setText("Время");
-        statusSong.add(songDuration, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(14, 10), null, 0, false));
+        statusSong.add(songDuration, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(12, 10), null, 0, false));
         jList = new JList();
         jList.setDropMode(DropMode.USE_SELECTION);
         jList.setForeground(new Color(-4473925));
