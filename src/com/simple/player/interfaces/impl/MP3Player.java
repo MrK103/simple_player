@@ -32,12 +32,14 @@ public class MP3Player implements Player {
     private double currentVolume;
     //private long secondsAmount; // сколько секунд прошло с начала проигрывания
     private final PlayControlListener playControlListener;
+    private JTextArea songDuration;
 
-    public MP3Player(PlayControlListener playControlListener, JSlider songSlider, JTextArea titleSong) {
+
+    public MP3Player(PlayControlListener playControlListener, JSlider songSlider, JTextArea titleSong, JTextArea songDuration) {
         this.playControlListener = playControlListener;
         this.songSlider = songSlider;
         this.titleSong = titleSong;
-
+        this.songDuration = songDuration;
         //слушатель bpl
         basicPlayer.addBasicPlayerListener(new BasicPlayerListenerAdapter() {
            
@@ -51,6 +53,8 @@ public class MP3Player implements Player {
                     if (duration != 0) {
                         if (moveAutomatic == true) {
                             songSlider.setValue(secAmount);
+                            songDuration.setText( String.valueOf(secAmount) + "/" + String.valueOf(duration));
+                            System.out.println(secAmount);
                             //System.out.println(Math.round(secAmount * 1000 / duration));
                         }
                     }
@@ -63,10 +67,11 @@ public class MP3Player implements Player {
                 songSlider.setMaximum((int) duration);
                 bytesLen = Math.round((((Integer) map.get("mp3.length.bytes")).intValue()));
                 String songName = map.get("title") != null ? map.get("title").toString() : (new File(o.toString()).toString());
-                if (songName.length() > 23) {
-                    songName = songName.substring(0, 23) + "...";
+                if (songName.length() > 12) {
+                    songName = songName.substring(0, 12) + "...";
                 }
                 titleSong.setText(songName);
+                //songDuration.setText(String.valueOf(duration));
 
             }
 

@@ -4,8 +4,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
+import javax.swing.*;
 
 import com.simple.player.interfaces.PlayList;
 import com.simple.player.interfaces.Player;
