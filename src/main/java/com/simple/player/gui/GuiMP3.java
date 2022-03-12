@@ -8,6 +8,7 @@ import com.simple.player.interfaces.impl.MP3PlayList;
 import com.simple.player.interfaces.impl.MP3Player;
 import com.simple.player.utils.SkinUtil;
 
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -17,6 +18,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 
 public class GuiMP3 implements PlayControlListener {
 
@@ -194,6 +196,7 @@ public class GuiMP3 implements PlayControlListener {
         jFrame.setResizable(false);
         jFrame.setVisible(true);
         jFrame.setTitle("Simple player");
+        jFrame.setIconImage(new ImageIcon("src/main/resources/images/icon.jpg").getImage());
 
         menuBar1 = new JMenuBar();
         jm = new JMenu("menu");
