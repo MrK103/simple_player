@@ -1,3 +1,5 @@
 *.iml
 /out
 /.idea
+/target
+/src/main/resources/xml/songList.xml
