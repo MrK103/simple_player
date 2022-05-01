@@ -11,10 +11,6 @@ public interface PlayList {
     boolean search(String name);
 
     void addSong();
-
-    //boolean openFiles(File[] files);
-    
-    //boolean openPlayList(File file);
     
     void playFile();
 

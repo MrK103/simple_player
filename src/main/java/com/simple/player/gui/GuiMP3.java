@@ -1,6 +1,5 @@
 package com.simple.player.gui;
 
-import com.formdev.flatlaf.FlatLightLaf;
 import com.simple.player.interfaces.PlayControlListener;
 import com.simple.player.interfaces.PlayList;
 import com.simple.player.interfaces.Player;
@@ -9,6 +8,7 @@ import com.simple.player.interfaces.impl.MP3Player;
 import com.simple.player.utils.SkinUtil;
 
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -18,19 +18,20 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class GuiMP3 implements PlayControlListener {
 
-
     private final Player player;
     private final PlayList playList;
 
-    private JButton searhButton;
+    private JButton searchButton;
     private JButton downButton;
-    private JTextField searhField;
+    private JTextField searchField;
     private JButton buttonAdd;
-    private JButton butonRemove;
+    private JButton buttonRemove;
     private JButton upButton;
     private JRadioButton muteButton;
     private JSlider sliderVolume;
@@ -46,7 +47,6 @@ public class GuiMP3 implements PlayControlListener {
     private JMenuItem jmiMenu;
     private JMenuItem jmiSkin1;
     private JMenuItem jmiSkin2;
-    private JMenuItem jmiSkin3;
     private JMenu jmService;
     private JFrame jFrame;
     private JPanel panel2;
@@ -54,15 +54,13 @@ public class GuiMP3 implements PlayControlListener {
     private JPanel statusSong;
     private JSlider songSlider;
     private JTextArea songDuration;
-    //private final SkinUtil sk;
-
 
     private void searchSong() {
-        String name = searhField.getText().trim();
+        String name = searchField.getText().trim();
         if (!playList.search(name)) {
             JOptionPane.showMessageDialog(null, "Поиск по строке '" + name + "' не дал результатов");
-            searhField.requestFocus();
-            searhField.selectAll();
+            searchField.requestFocus();
+            searchField.selectAll();
         }
     }
 
@@ -71,14 +69,6 @@ public class GuiMP3 implements PlayControlListener {
         player = new MP3Player(this, songSlider, titleSong, songDuration);
         playList = new MP3PlayList(jList, player);
         player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
-        //player.setVolume(sliderVolume.getValue());
-
-        //mp3List = new DefaultListModel();
-        //ListSong listSong = new ListSong();
-        //listSong.getSongList(mp3List, jList);
-
-
-       // sk = new SkinUtil();
 
         //Change listener for volume slider
         ChangeListener changeListener = new ChangeListener() {
@@ -91,53 +81,44 @@ public class GuiMP3 implements PlayControlListener {
             }
         };
         //Action listener for buttons
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == buttonAdd) {
-                    playList.addSong();
-                } else if (e.getSource() == butonRemove) {
-                    playList.removeSong();
-                } else if (e.getSource() == upButton) {
-                    playList.up();
-                } else if (e.getSource() == downButton) {
-                    playList.down();
-                } else if (e.getSource() == playButton) {
-                    playList.playFile();
-                } else if (e.getSource() == pauseButton) {
-                    player.pause();
-                } else if (e.getSource() == stopButton) {
-                    player.stop();
-                } else if (e.getSource() == leftSkipButton) {
-                    playList.up();
-                    playList.playFile();
-                } else if (e.getSource() == rightSkipButton) {
-                    playList.down();
-                    playList.playFile();
-                } else if (e.getSource() == muteButton) {
-                    if (muteButton.isSelected()) {
-                        player.setVolume(0, 0);
-                    } else player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
+        ActionListener listener = e -> {
+            if (e.getSource() == buttonAdd) {
+                playList.addSong();
+            } else if (e.getSource() == buttonRemove) {
+                playList.removeSong();
+            } else if (e.getSource() == upButton) {
+                playList.up();
+            } else if (e.getSource() == downButton) {
+                playList.down();
+            } else if (e.getSource() == playButton) {
+                playList.playFile();
+            } else if (e.getSource() == pauseButton) {
+                player.pause();
+            } else if (e.getSource() == stopButton) {
+                player.stop();
+            } else if (e.getSource() == leftSkipButton) {
+                playList.up();
+                playList.playFile();
+            } else if (e.getSource() == rightSkipButton) {
+                playList.down();
+                playList.playFile();
+            } else if (e.getSource() == muteButton) {
+                if (muteButton.isSelected()) {
+                    player.setVolume(0, 0);
+                } else player.setVolume(sliderVolume.getValue(), sliderVolume.getMaximum());
 
-                } else if (e.getSource() == jmiSkin1) {
-                    SkinUtil.changeSkin(jFrame, new FlatLightLaf());
-                    Font font = new Font("Segoe Script", Font.ROMAN_BASELINE, 10);
-                    titleSong.setFont(font);
-                    songDuration.setFont(font);
-                } else if (e.getSource() == jmiSkin2) {
-                    SkinUtil.changeSkin(jFrame, UIManager.getSystemLookAndFeelClassName());
-                } else if (e.getSource() == jmiSkin3) {
-                    SkinUtil.changeSkin(jFrame, "com.jtattoo.plaf.acryl.AcrylLookAndFeel");
-                } else if (e.getSource() == searhButton) {
-                    searchSong();
-                }
+            } else if (e.getSource() == jmiSkin2) {
+                SkinUtil.changeSkin(jFrame, UIManager.getSystemLookAndFeelClassName());
+            } else if (e.getSource() == jmiSkin1) {
+                SkinUtil.changeSkin(jFrame, "com.jtattoo.plaf.acryl.AcrylLookAndFeel");
+            } else if (e.getSource() == searchButton) {
+                searchSong();
             }
         };
 
         buttonAdd.addActionListener(listener);
-        butonRemove.addActionListener(listener);
-        searhButton.addActionListener(listener);
-        jmiSkin3.addActionListener(listener);
+        buttonRemove.addActionListener(listener);
+        searchButton.addActionListener(listener);
         jmiSkin2.addActionListener(listener);
         jmiSkin1.addActionListener(listener);
         downButton.addActionListener(listener);
@@ -156,59 +137,39 @@ public class GuiMP3 implements PlayControlListener {
             }
         });
 
-
-        /*songSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (songSlider.getValueIsAdjusting() == false) {
-                    if (moveAutomatic == true) {
-                        moveAutomatic = false;
-                        System.out.println(songSlider.getValue());
-                        double posValue = (double) songSlider.getValue() / duration;
-                        System.out.println(posValue);
-                        processSeek(posValue);
-                    }
-                } else {
-                    moveAutomatic = true;
-                    movingFromJump = true;
-                }
-            }
-        });*/
-
-
     }
 
 
     private void createUIComponents() {
-        /*try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
-            e.printStackTrace();
-        }*/
+
         // TODO: place custom component creation code here
         panel2 = new JPanel();
         jFrame = new JFrame();
         jFrame.setLayout(new FlowLayout());
         jFrame.add($$$getRootComponent$$$());
-        jFrame.setSize(410, 500);
+        jFrame.setSize(395, 500);
         jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         jFrame.setLocationRelativeTo(null);
         jFrame.setResizable(false);
         jFrame.setVisible(true);
         jFrame.setTitle("Simple player");
-        jFrame.setIconImage(new ImageIcon("src/main/resources/images/icon.jpg").getImage());
+
+        InputStream stream = getClass().getResourceAsStream("/images/icon.jpg");
+        try {
+            jFrame.setIconImage(new ImageIcon(ImageIO.read(stream)).getImage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         menuBar1 = new JMenuBar();
         jm = new JMenu("menu");
         jmiMenu = new JMenuItem("save");
         jmService = new JMenu("service");
-        jmiSkin1 = new JMenuItem("FlatFlaw");
+        jmiSkin1 = new JMenuItem("JTatoo");
         jmiSkin2 = new JMenuItem("Windows");
-        jmiSkin3 = new JMenuItem("JTatoo");
         JMenu skins = new JMenu("skins");
         skins.add(jmiSkin2);
         skins.add(jmiSkin1);
-        skins.add(jmiSkin3);
         jmService.add(skins);
         jm.add(jmiMenu);
         menuBar1.add(jm);
@@ -235,27 +196,27 @@ public class GuiMP3 implements PlayControlListener {
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 5, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel3, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 4, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        searhButton = new JButton();
-        searhButton.setIcon(new ImageIcon(getClass().getResource("/images/search_16.png")));
-        searhButton.setText("");
-        panel3.add(searhButton, new com.intellij.uiDesigner.core.GridConstraints(0, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        searchButton = new JButton();
+        searchButton.setIcon(new ImageIcon(getClass().getResource("/images/search_16.png")));
+        searchButton.setText("");
+        panel3.add(searchButton, new com.intellij.uiDesigner.core.GridConstraints(0, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         downButton = new JButton();
         downButton.setIcon(new ImageIcon(getClass().getResource("/images/arrow-down-icon.png")));
         downButton.setText("");
         panel3.add(downButton, new com.intellij.uiDesigner.core.GridConstraints(1, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        searhField = new JTextField();
-        searhField.setText("Поиск");
-        searhField.setToolTipText("Поиск песен по названию");
-        panel3.add(searhField, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 4, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        searchField = new JTextField();
+        searchField.setText("Поиск");
+        searchField.setToolTipText("Поиск песен по названию");
+        panel3.add(searchField, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 4, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         buttonAdd = new JButton();
         buttonAdd.setHideActionText(true);
         buttonAdd.setIcon(new ImageIcon(getClass().getResource("/images/plus_16.png")));
         buttonAdd.setText("");
         panel3.add(buttonAdd, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        butonRemove = new JButton();
-        butonRemove.setIcon(new ImageIcon(getClass().getResource("/images/remove_icon.png")));
-        butonRemove.setText("");
-        panel3.add(butonRemove, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        buttonRemove = new JButton();
+        buttonRemove.setIcon(new ImageIcon(getClass().getResource("/images/remove_icon.png")));
+        buttonRemove.setText("");
+        panel3.add(buttonRemove, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         upButton = new JButton();
         upButton.setIcon(new ImageIcon(getClass().getResource("/images/arrow-up-icon.png")));
         upButton.setText("");
@@ -335,13 +296,6 @@ public class GuiMP3 implements PlayControlListener {
     public JComponent $$$getRootComponent$$$() {
         return panel2;
     }
-
-
-    @Override
-    public void playStarted(String name) {
-        titleSong.setText(name);
-    }
-
 
     @Override
     public void playFinished() {

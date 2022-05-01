@@ -15,63 +15,52 @@ import javazoom.jlgui.basicplayer.BasicPlayerEvent;
 import javazoom.jlgui.basicplayer.BasicPlayerException;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class MP3Player implements Player {
 
-    private final JSlider songSlider;
-    private final JTextArea titleSong;
-
-    //private boolean movingFromJump;
     private boolean moveAutomatic = true; //автоматическое перемещение ползунка песни
     private long duration; // длительность песни в секундах
     private int bytesLen; // размер песни в байтах
     private final BasicPlayer basicPlayer = new BasicPlayer(); // библиотека для проигрывания мп3
     private String currentFilePath;// текущая песня
     private double currentVolume;
-    //private long secondsAmount; // сколько секунд прошло с начала проигрывания
+
+    //интерфейс для выполнения метода playFinished из GuiMP3
     private final PlayControlListener playControlListener;
-    private final JTextArea songDuration;
 
 
     public MP3Player(PlayControlListener playControlListener, JSlider songSlider, JTextArea titleSong, JTextArea songDuration) {
         this.playControlListener = playControlListener;
-        this.songSlider = songSlider;
-        this.titleSong = titleSong;
-        this.songDuration = songDuration;
         //слушатель bpl
         basicPlayer.addBasicPlayerListener(new BasicPlayerListenerAdapter() {
-           
+
             @Override
             public void progress(int bytesRead, long microseconds, byte[] pcmdata, Map properties) {
-                    float progress = -1.0f;
-                    if ((bytesRead > 0) && ((duration > 0))) {
-                        progress = bytesRead * 1.0f / bytesLen * 1.0f;
-                    }
-                    int secAmount = (int) (duration * progress);
-                    if (duration != 0) {
-                        if (moveAutomatic == true) {
-                            songSlider.setValue(secAmount);
-                            songDuration.setText(secAmount + "/" + duration);
-                            System.out.println(secAmount);
-                            //System.out.println(Math.round(secAmount * 1000 / duration));
-                        }
+                float progress = -1.0f;
+                if ((bytesRead > 0) && ((duration > 0))) {
+                    progress = bytesRead * 1.0f / bytesLen;
+                }
+                int secAmount = (int) (duration * progress);
+                if (duration != 0) {
+                    if (moveAutomatic) {
+                        songSlider.setValue(secAmount);
+                        songDuration.setText(secAmount + "/" + duration);
+                        System.out.println(secAmount);
                     }
                 }
+            }
 
 
             @Override
             public void opened(Object o, Map map) {
-                duration = Math.round((((Long) map.get("duration")).longValue()) / 1000000);
+                duration = Math.round(((Long) map.get("duration")) / 1000000f);
                 songSlider.setMaximum((int) duration);
-                bytesLen = Math.round((((Integer) map.get("mp3.length.bytes")).intValue()));
-                String songName = map.get("title") != null ? map.get("title").toString() : (new File(o.toString()).toString());
+                bytesLen = Math.round(((Integer) map.get("mp3.length.bytes")));
+                String songName = map.get("title") != null ? map.get("title").toString() : ("Имя песни");
                 if (songName.length() > 11) {
                     songName = songName.substring(0, 11) + "..";
                 }
                 titleSong.setText(songName);
-                //songDuration.setText(String.valueOf(duration));
 
             }
 
@@ -99,24 +88,6 @@ public class MP3Player implements Player {
                     jump(songSlider.getValue());
                 }
                 moveAutomatic = true;
-            }
-        });
-
-        songSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-               /* if (songSlider.getValueIsAdjusting() == false) {
-                    if (moveAutomatic == true) {
-                        moveAutomatic = false;
-                        System.out.println(songSlider.getValue());
-                        double posValue = (double) songSlider.getValue() / duration;
-                        System.out.println(posValue);
-                        processSeek(posValue);
-                    }
-                } else {
-                    moveAutomatic = true;
-                    movingFromJump = true;
-                }*/
             }
         });
     }
@@ -150,7 +121,6 @@ public class MP3Player implements Player {
     }
 
 
-
     @Override
     public void stop() {
         try {
@@ -171,25 +141,29 @@ public class MP3Player implements Player {
 
     // регулирует звук при проигрывании песни
     @Override
-    public void setVolume(int volume, int max){
+    public void setVolume(int volume, int max) {
         this.currentVolume = volume;
         try {
-            if (volume==0){
+            if (volume == 0) {
                 basicPlayer.setGain(0);
-            }else {basicPlayer.setGain(refactorVolume(volume,max));}
+            } else {
+                basicPlayer.setGain(refactorVolume(volume, max));
+            }
         } catch (BasicPlayerException e) {
             Logger.getLogger(MP3Player.class.getName()).log(Level.SEVERE, null, e);
 
         }
     }
-    public double refactorVolume(int current, int max){
-        currentVolume = (double)current / (double) max;
+
+    public double refactorVolume(int current, int max) {
+        currentVolume = (double) current / (double) max;
         return currentVolume;
     }
+
     @Override
     public void jump(double controlPosition) {
         try {
-            controlPosition = controlPosition/duration;
+            controlPosition = controlPosition / duration;
             controlPosition = bytesLen * controlPosition;
             basicPlayer.seek((long) controlPosition);
             basicPlayer.setGain(currentVolume);
